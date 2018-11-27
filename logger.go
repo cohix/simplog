@@ -33,3 +33,11 @@ func LogDebug(msg string) {
 		fmt.Printf("(D) %s\n", msg)
 	}
 }
+
+// LogTrace logs a function call and returns a function to be deferred marking the end of the function
+func LogTrace(name string) func() {
+	LogInfo(fmt.Sprintf("[trace] %s", name))
+	return func() {
+		LogInfo(fmt.Sprintf("%s completed", name))
+	}
+}
