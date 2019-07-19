@@ -2,6 +2,7 @@ package simplog
 
 import (
 	"fmt"
+	"strings"
 )
 
 //LogLevelError and others represent the log levels
@@ -34,28 +35,28 @@ func (l *SLogger) Error(err error) {
 }
 
 // ErrorString logs an error
-func (l *SLogger) ErrorString(msg string) {
-	fmt.Printf("(E) %s\n", msg)
+func (l *SLogger) ErrorString(msgs ...string) {
+	fmt.Printf("(E) %s\n", strings.Join(msgs, " "))
 }
 
 // Warn logs a warning
-func (l *SLogger) Warn(msg string) {
+func (l *SLogger) Warn(msgs ...string) {
 	if l.Level >= LevelWarn {
-		fmt.Printf("(W) %s\n", msg)
+		fmt.Printf("(W) %s\n", strings.Join(msgs, " "))
 	}
 }
 
 // Info logs an information message
-func (l *SLogger) Info(msg string) {
+func (l *SLogger) Info(msgs ...string) {
 	if l.Level >= LevelInfo {
-		fmt.Printf("(I) %s\n", msg)
+		fmt.Printf("(I) %s\n", strings.Join(msgs, " "))
 	}
 }
 
 // Debug logs an information message
-func (l *SLogger) Debug(msg string) {
+func (l *SLogger) Debug(msgs ...string) {
 	if l.Level > LevelDebug {
-		fmt.Printf("(D) %s\n", msg)
+		fmt.Printf("(D) %s\n", strings.Join(msgs, " "))
 	}
 }
 
