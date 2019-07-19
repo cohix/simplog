@@ -2,62 +2,78 @@ package simplog
 
 import (
 	"fmt"
-	"time"
-
-	flag "github.com/cohix/simplflag"
 )
 
-var includeDebug bool
-var includeTrace bool
-var noInfo bool
+//LogLevelError and others represent the log levels
+const (
+	LevelError     = 1
+	LevelWarn      = 2
+	LevelInfo      = 3
+	LevelDebug     = 4
+	LevelTrace     = 5
+	LevelSensitive = 6
+)
 
-func init() {
-	_, includeDebug = flag.CheckFlag("debug")
-	_, includeTrace = flag.CheckFlag("trace")
-	_, noInfo = flag.CheckFlag("noinfo")
+//SLogger is a simplogger
+type SLogger struct {
+	Level int
 }
 
-type logMessage struct {
-	Time     time.Time `json:"time"`
-	Severity string    `json:"severity"`
-	Message  string    `json:"message"`
-	TraceID  string    `json:"trace_id"`
+// New returns a new SLogger
+func New(level int) *SLogger {
+	sl := &SLogger{
+		Level: level,
+	}
+
+	return sl
 }
 
-// LogError logs an error
-func LogError(err error) {
+// Error logs an error
+func (l *SLogger) Error(err error) {
 	fmt.Printf("(E) %s\n", err.Error())
 }
 
-// LogWarn logs a warning
-func LogWarn(msg string) {
-	fmt.Printf("(W) %s\n", msg)
+// ErrorString logs an error
+func (l *SLogger) ErrorString(msg string) {
+	fmt.Printf("(E) %s\n", msg)
 }
 
-// LogInfo logs an information message
-func LogInfo(msg string) {
-	if noInfo {
-		return
+// Warn logs a warning
+func (l *SLogger) Warn(msg string) {
+	if l.Level >= LevelWarn {
+		fmt.Printf("(W) %s\n", msg)
 	}
-
-	fmt.Printf("(I) %s\n", msg)
 }
 
-// LogDebug logs an information message
-func LogDebug(msg string) {
-	if includeDebug {
+// Info logs an information message
+func (l *SLogger) Info(msg string) {
+	if l.Level >= LevelInfo {
+		fmt.Printf("(I) %s\n", msg)
+	}
+}
+
+// Debug logs an information message
+func (l *SLogger) Debug(msg string) {
+	if l.Level > LevelDebug {
 		fmt.Printf("(D) %s\n", msg)
 	}
 }
 
-// LogTrace logs a function call and returns a function to be deferred marking the end of the function
-func LogTrace(name string) func() {
-	if includeTrace {
-		LogInfo(fmt.Sprintf("[trace] %s began", name))
+// Trace logs a function call and returns a function to be deferred marking the end of the function
+func (l *SLogger) Trace(name string) func() {
+	if l.Level > LevelTrace {
+		fmt.Printf("[trace] %s began", name)
 	}
 	return func() {
-		if includeTrace {
-			LogInfo(fmt.Sprintf("[trace] %s completed", name))
+		if l.Level > LevelTrace {
+			fmt.Printf("[trace] %s completed", name)
 		}
+	}
+}
+
+// Sensitive logs a sensitive log line
+func (l *SLogger) Sensitive(msg string) {
+	if l.Level >= LevelSensitive {
+		fmt.Printf("(S) %s\n", msg)
 	}
 }
